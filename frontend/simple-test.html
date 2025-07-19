@@ -189,14 +189,15 @@
             try {
                 const response = await fetch(HEALTH_URL);
                 if (response.ok) {
-                    statusDiv.className = 'server-status server-online';
-                    statusDiv.textContent = '✅ 后端服务连接正常';
+                    // 服务器正常时隐藏状态提示
+                    statusDiv.style.display = 'none';
                 } else {
                     throw new Error('Server error');
                 }
             } catch (error) {
                 statusDiv.className = 'server-status server-offline';
                 statusDiv.textContent = '❌ 后端服务未连接，请确保后端服务已启动';
+                statusDiv.style.display = 'block';
             }
         }
         
