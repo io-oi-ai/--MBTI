@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI头像MBTI性格分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f5ff;
+        }
+        
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .gender-selector {
+            margin: 20px 0;
+        }
+        
+        .gender-selector label {
+            margin: 0 15px;
+            cursor: pointer;
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 20px;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .analyze-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            text-align: left;
+        }
+        
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .result p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .server-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .server-online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .server-offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">AI头像MBTI性格分析</h1>
+        <p class="subtitle">上传你的头像，看看AI眼中的你</p>
+        
+        <div id="serverStatus" class="server-status"></div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div id="uploadContent">
+                <div class="upload-text">点击、拖拽或粘贴上传图片</div>
+                <div style="font-size: 12px; color: #ccc; margin-top: 5px;">支持 JPG, PNG, WEBP | 支持 Ctrl+V 粘贴</div>
+            </div>
+        </div>
+        
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        
+        <div class="gender-selector">
+            <label><input type="radio" name="gender" value="male" checked> 男生</label>
+            <label><input type="radio" name="gender" value="female"> 女生</label>
+        </div>
+        
+        <button class="analyze-btn" id="analyzeBtn" disabled>开始分析</button>
+        
+        <div class="loading" id="loading">
+            <div>分析中，请稍候...</div>
+        </div>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3008/api/analyze';
+        const HEALTH_URL = 'http://localhost:3008/api/health';
+        
+        let selectedFile = null;
+        
+        // 检查服务器状态
+        async function checkServerStatus() {
+            const statusDiv = document.getElementById('serverStatus');
+            try {
+                const response = await fetch(HEALTH_URL);
+                if (response.ok) {
+                    statusDiv.className = 'server-status server-online';
+                    statusDiv.textContent = '✅ 后端服务连接正常';
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                statusDiv.className = 'server-status server-offline';
+                statusDiv.textContent = '❌ 后端服务未连接，请确保后端服务已启动';
+            }
+        }
+        
+        // 页面加载时检查服务器状态
+        checkServerStatus();
+        
+        // 文件上传处理
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        
+        // 添加复制粘贴功能
+        document.addEventListener('paste', handlePaste);
+        
+        function handlePaste(e) {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    handleFile(blob);
+                    break;
+                }
+            }
+        }
+        
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // 拖拽上传
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+        
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件！');
+                return;
+            }
+            
+            selectedFile = file;
+            
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('uploadContent').innerHTML = `
+                    <img src="${e.target.result}" class="preview-image" alt="预览">
+                    <div class="upload-text">点击重新选择图片</div>
+                `;
+            };
+            reader.readAsDataURL(file);
+            
+            analyzeBtn.disabled = false;
+        }
+        
+        // 分析功能
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                alert('请先选择图片！');
+                return;
+            }
+            
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            
+            // 显示加载状态
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            analyzeBtn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('gender', gender);
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('分析失败');
+                }
+                
+                const result = await response.json();
+                displayResult(result);
+                
+            } catch (error) {
+                alert('分析失败，请检查网络连接和后端服务！');
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        });
+        
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h3>${result.firstImpression || '分析结果'}</h3>
+                <p><strong>性格速写：</strong>${result.personalitySketch || '暂无分析结果'}</p>
+                <p><strong>一句话总结：</strong>${result.hotTake || '暂无总结'}</p>
+                <p style="font-size: 12px; color: #999; margin-top: 15px;">
+                    ${result.disclaimer || '本服务由AI生成，仅供娱乐参考'}
+                </p>
+            `;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

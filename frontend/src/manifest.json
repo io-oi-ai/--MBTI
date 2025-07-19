@@ -1,0 +1,17 @@
+{
+  "name": "头像性格分析",
+  "appid": "",
+  "description": "通过头像分析MBTI性格",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": ""
+  },
+  "h5": {
+    "title": "头像性格分析",
+    "router": {
+      "mode": "hash"
+    }
+  }
+}
