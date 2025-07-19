@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI头像MBTI性格分析</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+        .speed-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">AI头像MBTI性格分析</h1>
+        <p>选择最适合你的访问方式：</p>
+        
+        <div class="options">
+            <a href="https://cdn.jsdelivr.net/gh/io-oi-ai/--MBTI@feature/multi-image-analysis/frontend/simple-test.html" 
+               class="btn btn-primary">
+                🚀 CDN加速访问（推荐）
+            </a>
+            
+            <a href="./frontend/simple-test.html" 
+               class="btn btn-secondary">
+                📱 GitHub Pages直连
+            </a>
+        </div>
+        
+        <div class="speed-info">
+            <p><strong>CDN加速访问</strong>：通过jsDelivr CDN，国内访问速度更快</p>
+            <p><strong>GitHub Pages直连</strong>：直接访问GitHub Pages，可能较慢</p>
+        </div>
+    </div>
+</body>
+</html>
