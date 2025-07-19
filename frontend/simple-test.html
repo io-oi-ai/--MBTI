@@ -178,8 +178,15 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3008/api/analyze';
-        const HEALTH_URL = 'http://localhost:3008/api/health';
+        // 自动检测环境，本地开发使用localhost，生产环境使用部署的后端
+        const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // Render后端URL - 请替换为你的实际Render URL
+        const PRODUCTION_BACKEND_URL = 'https://your-render-backend-url.onrender.com';
+        
+        const BACKEND_URL = isDevelopment ? 'http://localhost:3008' : PRODUCTION_BACKEND_URL;
+        const API_URL = `${BACKEND_URL}/api/analyze`;
+        const HEALTH_URL = `${BACKEND_URL}/api/health`;
         
         let selectedFile = null;
         

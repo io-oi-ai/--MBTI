@@ -5,7 +5,7 @@ const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
-const port = process.env.PORT || 3008;
+const port = process.env.PORT || 10000;
 
 // 初始化 Google AI
 if (!process.env.GEMINI_API_KEY) {
@@ -82,60 +82,31 @@ app.post('/api/analyze', upload.single('file'), async (req, res) => {
 
     try {
         const gender = req.body.gender || 'unknown';
-        const social = req.body.social || 'unknown';
-        const decision = req.body.decision || 'unknown';
-        const planning = req.body.planning || 'unknown';
-        
-        console.log('用户信息:', { gender, social, decision, planning });
+        console.log('用户性别:', gender);
         
         const imagePart = fileToGenerativePart(req.file.buffer, req.file.mimetype);
         console.log('图片转换完成，开始AI分析...');
 
-        // 根据问卷答案生成性格倾向提示
-        const socialTrait = {
-            'active': '外向型(E) - 喜欢社交互动',
-            'observe': '中间型 - 有选择性的社交',
-            'quiet': '内向型(I) - 偏好安静环境'
-        }[social] || '';
+        const prompt = `你是一个超懂MBTI的AI搭子和心理分析师，尤其擅长通过年轻人的社交媒体头像，洞察他们的隐藏性格。你的分析既有深度又有趣，说话风格轻松、新潮，带点小犀利，就像和朋友聊天一样。
 
-        const decisionTrait = {
-            'logic': '思考型(T) - 理性决策导向',
-            'feeling': '情感型(F) - 情感考量导向', 
-            'intuition': '直觉型(N) - 直觉导向'
-        }[decision] || '';
+用户性别：${gender === 'male' ? '男生' : '女生'}
 
-        const planningTrait = {
-            'structured': '判断型(J) - 喜欢结构化',
-            'flexible': '中间型 - 平衡计划与灵活',
-            'spontaneous': '感知型(P) - 偏好自发性'
-        }[planning] || '';
+分析步骤：
+1.  **头像解码**：先仔细看图！这是什么类型的头像？（比如：怼脸自拍、动漫人物、猫猫狗狗、风景、梗图、暗黑系...）
+2.  **氛围感拿捏**：头像的整体感觉是啥？（比如：温暖治愈、高冷神秘、搞笑沙雕、文艺清新、赛博朋克...）
+3.  **色彩心理学**：主色调是啥？（比如：粉色可能浪漫，黑色可能独立，蓝色可能冷静...）
+4.  **性格推测**：结合以上信息和用户性别，大胆推测出最可能的MBTI类型。
 
-        const prompt = `你是一个超懂MBTI的AI搭子和心理分析师，现在要综合分析用户的头像和性格问卷，给出精准的MBTI分析。
+输出要求：
+*   用亲切、活泼的"小红书"风格来写。
+*   多用emoji来增加趣味性！✨🤔💖
+*   分析要一针见血，可以带点小吐槽，但整体是积极正向的。
+*   **严格按照下面的格式输出，不要添加任何额外解释。**
 
-**用户基本信息：**
-- 性别：${gender === 'male' ? '男生' : '女生'}
-
-**问卷分析结果：**
-- 社交倾向：${socialTrait}
-- 决策方式：${decisionTrait}  
-- 计划态度：${planningTrait}
-
-**分析任务：**
-1. **头像视觉分析**：仔细观察头像的类型、风格、色彩、构图等视觉元素
-2. **问卷数据整合**：结合问卷反映的性格倾向
-3. **MBTI类型推断**：基于头像+问卷的综合信息，推断最可能的MBTI类型
-4. **个性化分析**：针对这个具体的人给出深度的性格洞察
-
-**输出要求：**
-- 用轻松、有趣的"小红书"风格
-- 多用emoji增加趣味性 ✨🎭💫
-- 分析要准确且有针对性
-- 可以适当"吐槽"但要积极正向
-
-**严格按照以下格式输出：**
-【MBTI初印象】：[具体的MBTI类型] - [有趣的标签]
-【AI性格速写】：[结合头像和问卷的深度分析，150字左右]
-【一句话总结】：[精炼的性格总结]
+输出格式：
+【MBTI初印象】：xxxx
+【AI性格速写】：xxxx
+【一句话总结】：xxxx
 【娱乐提示】：🔮以上分析纯属AI的"读心术"，仅供娱乐，让你发现更可爱的自己！`;
 
         const result = await model.generateContent([prompt, imagePart]);
