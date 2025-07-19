@@ -62,7 +62,14 @@ chmod +x start.sh
 
 #### 1. 配置API密钥
 
-在 `backend/.env` 文件中配置你的Google Gemini API密钥：
+首先复制环境变量示例文件：
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+然后在 `backend/.env` 文件中配置你的Google Gemini API密钥：
 
 ```env
 GEMINI_API_KEY=你的API密钥
@@ -70,6 +77,8 @@ PORT=3000
 ```
 
 > 💡 **获取API密钥**: 访问 [Google AI Studio](https://makersuite.google.com/app/apikey) 获取免费的Gemini API密钥
+> 
+> ⚠️ **安全提醒**: 请确保 `.env` 文件已添加到 `.gitignore` 中，避免将API密钥提交到版本控制系统
 
 #### 2. 启动后端服务
 
