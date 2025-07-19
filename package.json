@@ -1,0 +1,13 @@
+{
+  "name": "ai-mbti-analyzer",
+  "version": "1.0.0",
+  "description": "AI头像MBTI性格分析项目",
+  "scripts": {
+    "start": "cd backend && node server-new.js",
+    "install-backend": "cd backend && npm install",
+    "build": "npm run install-backend"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

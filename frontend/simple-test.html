@@ -178,15 +178,46 @@
     </div>
 
     <script>
-        // 自动检测环境，本地开发使用localhost，生产环境使用部署的后端
-        const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        // 智能检测后端URL
+        function getBackendUrl() {
+            const hostname = window.location.hostname;
+            
+            // 本地开发环境
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3008';
+            }
+            
+            // 生产环境配置优先级：
+            // 1. 全局变量 window.BACKEND_URL
+            // 2. URL参数 ?backend=xxx
+            // 3. localStorage 存储的配置
+            // 4. 默认的Render后端URL
+            
+            if (window.BACKEND_URL) {
+                return window.BACKEND_URL;
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const backendParam = urlParams.get('backend');
+            if (backendParam) {
+                localStorage.setItem('backend_url', backendParam);
+                return backendParam;
+            }
+            
+            const storedBackend = localStorage.getItem('backend_url');
+            if (storedBackend) {
+                return storedBackend;
+            }
+            
+            // 默认的Render后端URL
+            return 'https://mbti-backend-u7ww.onrender.com';
+        }
         
-        // Render后端URL - 请替换为你的实际Render URL
-        const PRODUCTION_BACKEND_URL = 'https://your-render-backend-url.onrender.com';
-        
-        const BACKEND_URL = isDevelopment ? 'http://localhost:3008' : PRODUCTION_BACKEND_URL;
+        const BACKEND_URL = getBackendUrl();
         const API_URL = `${BACKEND_URL}/api/analyze`;
         const HEALTH_URL = `${BACKEND_URL}/api/health`;
+        
+        console.log('当前使用的后端URL:', BACKEND_URL);
         
         let selectedFile = null;
         
