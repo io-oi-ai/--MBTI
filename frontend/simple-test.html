@@ -209,8 +209,8 @@
                 return storedBackend;
             }
             
-            // 默认的Render后端URL
-            return 'https://mbti-backend-u7ww.onrender.com';
+            // 默认回退为当前站点域名（Vercel部署），再兜底Render
+            return window.location.origin || 'https://mbti-backend-u7ww.onrender.com';
         }
         
         const BACKEND_URL = getBackendUrl();

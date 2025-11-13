@@ -107,6 +107,14 @@ npm run dev:h5
 3. 点击运行到微信小程序
 4. 记得在小程序后台配置服务器域名白名单
 
+## ☁️ 部署到 Vercel
+
+1. **创建项目**：在 Vercel 中导入本仓库，构建命令保持默认（会自动执行 `npm install`）。
+2. **配置环境变量**：在 Project Settings → Environment Variables 中新增 `GEMINI_API_KEY=你的密钥`，勾选 Production / Preview / Development。
+3. **重新部署**：触发一次 Deploy，Vercel 会同时构建静态前端和 `api` 目录下的 Serverless Functions。
+4. **验证接口**：部署完成后访问 `https://你的域名/api/health` 应返回 `{"status":"OK","message":"Server is running"}`。
+5. **前端调用**：`frontend/simple-test.html` 会默认使用当前域名作为后端地址，因此无需额外配置即可通过 `/api/analyze` 调用。
+
 ## 🔌 API 接口文档
 
 ### 头像分析接口
